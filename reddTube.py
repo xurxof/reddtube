@@ -1,6 +1,19 @@
 import gdata.youtube.service
 import sys
 
+
+
+
+
+def getplaylist (playlist_feed, playlist_name):
+	"""
+	playlist_feed:  YouTubePlaylistEntry
+	playlist: name to search
+	"""
+	entries = [entry for entry in playlist_feed.entry if entry.title.text == playlist_name]
+	return entries
+
+
 playlist_name = sys.argv[1]
 
 # Create a client class which will make HTTP requests with Google Docs server.
@@ -19,6 +32,6 @@ print yt_service.ProgrammaticLogin()
 # read user playlists
 playlist_feed = yt_service.GetYouTubePlaylistFeed(username='default')
 
-# iterate through the feed as you would with any other
-for playlist_video_entry in playlist_feed.entry:
-	print playlist_video_entry.title.text
+print getplaylist (playlist_feed, playlist_name)
+
+
