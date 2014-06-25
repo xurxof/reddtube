@@ -1,4 +1,7 @@
 import gdata.youtube.service
+import sys
+
+playlist_name = sys.argv[1]
 
 # Create a client class which will make HTTP requests with Google Docs server.
 with open('password.hide') as f:
