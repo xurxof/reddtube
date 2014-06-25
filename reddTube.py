@@ -13,4 +13,3 @@ yt_service.developer_key = developer_key
 yt_service.client_id = 'reddTube'
 print yt_service.ProgrammaticLogin()
 
-
