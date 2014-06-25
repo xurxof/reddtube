@@ -13,3 +13,9 @@ yt_service.developer_key = developer_key
 yt_service.client_id = 'reddTube'
 print yt_service.ProgrammaticLogin()
 
+# read user playlists
+playlist_feed = yt_service.GetYouTubePlaylistFeed(username='default')
+
+# iterate through the feed as you would with any other
+for playlist_video_entry in playlist_feed.entry:
+	print playlist_video_entry.title.text
