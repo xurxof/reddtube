@@ -33,6 +33,20 @@ def create_playlist (yt_service, playlist_name, playlist_description, playlist_p
 	else:
 		return None
 
+def clear_playlist (yt_service, playlist, playlist_description):
+	"""
+	playlist:  YouTubePlaylistEntry object representing playlist to clear
+	playlist_description: new description for the playlist
+	Public/private attribute not change
+	"""
+	# playlist.id.text is something like http://gdata.youtube.com/feeds/api/users/bQQl1gQ/playlists/PLyhw-VhRP-i3AwJBx
+
+	playlist_entry_id = playlist.id.text.split('/')[-1]
+	
+	original_title = playlist.title.text
+	updated_playlist = yt_service.UpdatePlaylist(playlist_entry_id,
+		                                         original_title,
+		                                         playlist_description)
 
 
 playlist_name = sys.argv[1]
@@ -58,4 +72,5 @@ print yt_service.ProgrammaticLogin()
 playlist= getplaylist (yt_service, playlist_name)
 if not playlist:
 	playlist = create_playlist (yt_service, playlist_name, playlist_description, playlist_public)
-
+else:
+	clear_playlist (yt_service, playlist, playlist_description)
