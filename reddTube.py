@@ -40,14 +40,18 @@ def clear_playlist (yt_service, playlist, playlist_description):
 	Public/private attribute not change
 	"""
 	# playlist.id.text is something like http://gdata.youtube.com/feeds/api/users/bQQl1gQ/playlists/PLyhw-VhRP-i3AwJBx
-
-	playlist_entry_id = playlist.id.text.split('/')[-1]
+	playlist_id = playlist.id.text.split('/')[-1]
 	
 	original_title = playlist.title.text
-	updated_playlist = yt_service.UpdatePlaylist(playlist_entry_id,
-		                                         original_title,
-		                                         playlist_description)
+	# updated_playlist = yt_service.UpdatePlaylist(playlist_id,
+	#	                                         original_title,
+	#	                                         playlist_description)
 
+	playlist_video_feed = yt_service.GetYouTubePlaylistVideoFeed(playlist_id=playlist_id)
+	for video_entry in playlist_video_feed.entry:
+		video_id= video_entry.id.text.split('/')[-1]
+		yt_service.DeletePlaylistVideoEntry('http://gdata.youtube.com/feeds/api/playlists/' + playlist_id, video_id)
+		
 
 playlist_name = sys.argv[1]
 playlist_description = playlist_name
