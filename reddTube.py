@@ -54,18 +54,25 @@ def clear_playlist (yt_service, playlist, playlist_description):
 		
 def add_video_playlist (yt_service, playlist, video_url):
 	import urlparse
-	parsed = urlparse.urlparse(video_url)
-	video_v_parameters = urlparse.parse_qs(parsed.query)
-	if 'v' not in video_v_parameters:
-		# not a video link, perhaps a list link?
-		return 
-	video_id = video_v_parameters['v'][0]
+	try:
+		parsed = urlparse.urlparse(video_url)
+		video_v_parameters = urlparse.parse_qs(parsed.query)
+		if 'v' not in video_v_parameters:
+			# not a video link, perhaps a list link?
+			return 
+		video_id = video_v_parameters['v'][0]
 
-	playlist_id = playlist.id.text.split('/')[-1]
-	playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
+		playlist_id = playlist.id.text.split('/')[-1]
+		playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
 
-	playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
+		playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
+	except gdata.service.RequestError as inst:
 
+		response = inst[0]  
+		status = response['status']  
+		reason = response['reason']  
+		body = response['body']  
+		print "Request error. Status: {1} Reason:{2} Body: {3}".format(response, status, reason, body )
 
 playlist_name = sys.argv[1]
 playlist_description = playlist_name
@@ -83,7 +90,8 @@ yt_service.password = password
 yt_service.source = 'reddTube'
 yt_service.developer_key = developer_key
 yt_service.client_id = 'reddTube'
-print yt_service.ProgrammaticLogin()
+yt_service.ProgrammaticLogin()
+print 'Logged'
 
 def get_all_youtube_url(url_origin):
 	links=[]
