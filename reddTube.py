@@ -1,5 +1,6 @@
 import gdata.youtube.service
 import sys
+import time
 
 def get_first(iterable, default=None):
     if iterable:
@@ -111,13 +112,21 @@ def get_all_youtube_url(url_origin):
 	return links
 
 
+youtube_videos_links=get_all_youtube_url(url_origin)
+if not youtube_videos_links:
+	sys.exit 'Nou video links founded. Playlist not updated'
+
+
+
 # read user playlists
 playlist= getplaylist (yt_service, playlist_name)
 if not playlist:
 	playlist = create_playlist (yt_service, playlist_name, playlist_description, playlist_public)
 else:
 	clear_playlist (yt_service, playlist, playlist_description)
-for link in get_all_youtube_url(url_origin):
+
+for link in youtube_videos_links:
+	time.sleep(1) # flood control
 	print 'adding ' + link
 	add_video_playlist (yt_service, playlist, link)
 
