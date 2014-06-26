@@ -55,9 +55,12 @@ def clear_playlist (yt_service, playlist, playlist_description):
 def add_video_playlist (yt_service, playlist, video_url):
 	import urlparse
 	parsed = urlparse.urlparse(video_url)
-	video_id = urlparse.parse_qs(parsed.query)['v'][0]
-	
-	print video_id
+	video_v_parameters = urlparse.parse_qs(parsed.query)
+	if 'v' not in video_v_parameters:
+		# not a video link, perhaps a list link?
+		return 
+	video_id = video_v_parameters['v'][0]
+
 	playlist_id = playlist.id.text.split('/')[-1]
 	playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
 
