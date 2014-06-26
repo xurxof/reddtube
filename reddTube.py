@@ -52,10 +52,21 @@ def clear_playlist (yt_service, playlist, playlist_description):
 		video_id= video_entry.id.text.split('/')[-1]
 		yt_service.DeletePlaylistVideoEntry('http://gdata.youtube.com/feeds/api/playlists/' + playlist_id, video_id)
 		
+def add_video_playlist (yt_service, playlist, video_url):
+	video_id = 'pC6GJ3FXzR8' # = video_url.split('/')[-1]
+	playlist_id = playlist.id.text.split('/')[-1]
+	playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
+
+	playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
+
+	if isinstance(playlist_video_entry, gdata.youtube.YouTubePlaylistVideoEntry):
+	  print 'Video added' 
+
 
 playlist_name = sys.argv[1]
 playlist_description = playlist_name
 playlist_public = True
+
 
 # Create a client class which will make HTTP requests with Google Docs server.
 with open('password.hide') as f:
@@ -78,3 +89,4 @@ if not playlist:
 	playlist = create_playlist (yt_service, playlist_name, playlist_description, playlist_public)
 else:
 	clear_playlist (yt_service, playlist, playlist_description)
+add_video_playlist (yt_service, playlist, "https://www.youtube.com/watch?v=pC6GJ3FXzR8")
