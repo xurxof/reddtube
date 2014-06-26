@@ -66,7 +66,7 @@ def add_video_playlist (yt_service, playlist, video_url):
 playlist_name = sys.argv[1]
 playlist_description = playlist_name
 playlist_public = True
-
+url_origin = sys.argv[2]
 
 # Create a client class which will make HTTP requests with Google Docs server.
 with open('password.hide') as f:
@@ -81,12 +81,32 @@ yt_service.developer_key = developer_key
 yt_service.client_id = 'reddTube'
 print yt_service.ProgrammaticLogin()
 
+def get_all_youtube_url(url_origin):
+	links=[]
+	# get youtube links from origin url
+	from BeautifulSoup import BeautifulSoup
+	import urllib2
+	import re
+
+	html_page = urllib2.urlopen(url_origin)
+	soup = BeautifulSoup(html_page)
+	for soup_link in soup.findAll('a'):
+		link = soup_link.get('href')
+		if link is None:
+			continue
+		if 'www.youtube.com' in link and link not in links:
+			links.append(link)
+	return links
+
+print get_all_youtube_url(url_origin)
+
+"""
 # read user playlists
-
-
 playlist= getplaylist (yt_service, playlist_name)
 if not playlist:
 	playlist = create_playlist (yt_service, playlist_name, playlist_description, playlist_public)
 else:
 	clear_playlist (yt_service, playlist, playlist_description)
 add_video_playlist (yt_service, playlist, "https://www.youtube.com/watch?v=pC6GJ3FXzR8")
+
+"""
