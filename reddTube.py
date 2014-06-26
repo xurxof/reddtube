@@ -114,7 +114,7 @@ def get_all_youtube_url(url_origin):
 
 youtube_videos_links=get_all_youtube_url(url_origin)
 if not youtube_videos_links:
-	sys.exit 'Nou video links founded. Playlist not updated'
+	sys.exit ('No video links founded. Playlist not updated')
 
 
 
