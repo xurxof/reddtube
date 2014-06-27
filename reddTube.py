@@ -126,7 +126,7 @@ else:
 	clear_playlist (yt_service, playlist, playlist_description)
 
 for link in youtube_videos_links:
-	time.sleep(1) # flood control
+	time.sleep(3) # flood control
 	print 'adding ' + link
 	add_video_playlist (yt_service, playlist, link)
 
