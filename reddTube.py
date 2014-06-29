@@ -56,19 +56,21 @@ def clear_playlist (yt_service, playlist, playlist_description):
 def add_video_playlist (yt_service, playlist, video_url):
 	import urlparse
 	try:
-		parsed = urlparse.urlparse(video_url)
-		video_v_parameters = urlparse.parse_qs(parsed.query)
-		if 'v' not in video_v_parameters:
-			# not a video link, perhaps a list link?
-			return 
-		video_id = video_v_parameters['v'][0]
+		if 'www.youtube.com' in video_url:
+			parsed = urlparse.urlparse(video_url)
+			video_v_parameters = urlparse.parse_qs(parsed.query)
+			if 'v' not in video_v_parameters:
+				# not a video link, perhaps a list link?
+				return 
+			video_id = video_v_parameters['v'][0]
+		if 'youtu.be' in video_url:
+			video_id = video_url.split('/')[-1]
 
 		playlist_id = playlist.id.text.split('/')[-1]
 		playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
 
 		playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
 	except gdata.service.RequestError as inst:
-
 		response = inst[0]  
 		status = response['status']  
 		reason = response['reason']  
@@ -115,7 +117,8 @@ def get_all_youtube_url(url_origin):
 				link = soup_link.get('href')
 				if link is None:
 					continue
-				if 'www.youtube.com' in link and link not in links:
+				if ('www.youtube.com' in link or 'youtu.be' in link) and link not in links and 'domain/youtu.be' not in link:
+					# TODO: best check
 					links.append(link)
 			done = True
 	return links
