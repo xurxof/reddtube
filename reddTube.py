@@ -82,6 +82,9 @@ playlist_description = playlist_name
 playlist_public = True
 url_origin = sys.argv[2]
 
+
+print 'Updating ' + playlist_name + ' with ' + url_origin
+
 # Create a client class which will make HTTP requests with Google Docs server.
 with open('password.hide') as f:
   username, password = f.readline().strip().split(':')
