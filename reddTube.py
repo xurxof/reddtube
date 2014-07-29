@@ -93,23 +93,20 @@ def add_video_playlist(yt_service, playlist, video_id):
         print "Request error. Status: {1} Reason:{2} Body: {3}".format(response, status, reason, body)
 
 
-
-
 def get_all_youtube_url(url_origin):
     links = []
     # get youtube links from origin url
     from BeautifulSoup import BeautifulSoup
     import urllib2
-    import re
 
-    attemps = 0
+    attempts = 0
     done = False
-    while attemps < 5 and not done:
+    while attempts < 5 and not done:
         try:
             html_page = urllib2.urlopen(url_origin)
         except urllib2.HTTPError as inst:
-            print "HTTPError. Attemps: {0} Error: {1}".format(attemps, inst)
-            attemps += 1
+            print "HTTPError. Attemps: {0} Error: {1}".format(attempts, inst)
+            attempts += 1
             time.sleep(10)
         else:
             print "Analyzing {0}".format(url_origin)
@@ -118,12 +115,13 @@ def get_all_youtube_url(url_origin):
                 link = soup_link.get('href')
                 if link is None:
                     continue
-                if (
-                        'www.youtube.com' in link or 'youtu.be' in link) and link not in links and 'domain/youtu.be' not in link:
+                if ('www.youtube.com' in link or 'youtu.be' in link) and 'domain/youtu.be' not in link:
                     # TODO: best check
                     links.append(link)
             done = True
-    return links
+    video_ids=list(set([get_video_id_from_url(url) for url in links]))
+    return video_ids
+
 
 
 playlist_name = sys.argv[1]
@@ -148,12 +146,11 @@ yt_service.ProgrammaticLogin()
 print 'Logged'
 
 
-youtube_videos_links = get_all_youtube_url(url_origin)
-if not youtube_videos_links:
+video_ids = get_all_youtube_url(url_origin)
+if not video_ids:
     sys.exit('No video links founded. Playlist not updated')
 
 # unique video ids
-video_ids = list(set([get_video_id_from_url(url) for url in youtube_videos_links]))
 
 # read user playlists
 playlist = getplaylist(yt_service, playlist_name)
