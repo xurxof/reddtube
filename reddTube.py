@@ -98,12 +98,13 @@ def get_all_youtube_url(url_origin):
 
     attemps = 0
     done = False
-    while attemps < 3 and not done:
+    while attemps < 5 and not done:
         try:
             html_page = urllib2.urlopen(url_origin)
         except urllib2.HTTPError as inst:
             print "HTTPError. Attemps: {0} Error: {1}".format(attemps, inst)
             attemps += 1
+            time.sleep(10)
         else:
             print "Analyzing {0}".format(url_origin)
             soup = BeautifulSoup(html_page)
