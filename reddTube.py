@@ -70,15 +70,16 @@ def add_video_playlist(yt_service, playlist, video_url):
             video_v_parameters = urlparse.parse_qs(parsed.query)
             if 'v' not in video_v_parameters:
                 # not a video link, perhaps a list link?
-                return
-            video_id = video_v_parameters['v'][0]
+                video_id = None
+            else:
+                video_id = video_v_parameters['v'][0]
         if 'youtu.be' in video_url:
             video_id = video_url.split('/')[-1]
 
-        playlist_id = playlist.id.text.split('/')[-1]
-        playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
-
-        playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
+        if video_id:
+            playlist_id = playlist.id.text.split('/')[-1]
+            playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
+            playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
     except gdata.service.RequestError as inst:
         response = inst[0]
         status = response['status']
