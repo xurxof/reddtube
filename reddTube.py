@@ -115,7 +115,9 @@ def get_all_youtube_url(url_origin):
                 link = soup_link.get('href')
                 if link is None:
                     continue
-                if ('www.youtube.com' in link or 'youtu.be' in link) and 'domain/youtu.be' not in link:
+                if 'domain/youtu.be' in link:
+                    continue
+                if ('www.youtube.com' in link or 'youtu.be' in link):
                     # TODO: best check
                     links.append(link)
             done = True
