@@ -54,3 +54,6 @@ target/
 
 # Personal stuff
 *.hide
+*.venv
+todo.txt
+
