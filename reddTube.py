@@ -61,20 +61,25 @@ def clear_playlist(yt_service, playlist, playlist_description):
         yt_service.DeletePlaylistVideoEntry('http://gdata.youtube.com/feeds/api/playlists/' + playlist_id, video_id)
 
 
+def get_video_id_from_url(video_url):
+    if 'www.youtube.com' in video_url:
+        parsed = urlparse.urlparse(video_url)
+        video_v_parameters = urlparse.parse_qs(parsed.query)
+        if 'v' not in video_v_parameters:
+            # not a video link, perhaps a list link?
+            video_id = None
+        else:
+            video_id = video_v_parameters['v'][0]
+    if 'youtu.be' in video_url:
+        video_id = video_url.split('/')[-1]
+    return video_id
+
+
 def add_video_playlist(yt_service, playlist, video_url):
     import urlparse
 
     try:
-        if 'www.youtube.com' in video_url:
-            parsed = urlparse.urlparse(video_url)
-            video_v_parameters = urlparse.parse_qs(parsed.query)
-            if 'v' not in video_v_parameters:
-                # not a video link, perhaps a list link?
-                video_id = None
-            else:
-                video_id = video_v_parameters['v'][0]
-        if 'youtu.be' in video_url:
-            video_id = video_url.split('/')[-1]
+        video_id = get_video_id_from_url(video_url)
 
         if video_id:
             playlist_id = playlist.id.text.split('/')[-1]
