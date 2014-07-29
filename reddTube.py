@@ -62,6 +62,8 @@ def clear_playlist(yt_service, playlist, playlist_description):
 
 
 def get_video_id_from_url(video_url):
+    import urlparse
+
     if 'www.youtube.com' in video_url:
         parsed = urlparse.urlparse(video_url)
         video_v_parameters = urlparse.parse_qs(parsed.query)
@@ -75,16 +77,14 @@ def get_video_id_from_url(video_url):
     return video_id
 
 
-def add_video_playlist(yt_service, playlist, video_url):
-    import urlparse
+def add_video_playlist(yt_service, playlist, video_id):
 
+    if not video_id:
+        return
     try:
-        video_id = get_video_id_from_url(video_url)
-
-        if video_id:
-            playlist_id = playlist.id.text.split('/')[-1]
-            playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
-            playlist_video_entry = yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
+        playlist_id = playlist.id.text.split('/')[-1]
+        playlist_uri = 'http://gdata.youtube.com/feeds/api/playlists/' + playlist_id
+        yt_service.AddPlaylistVideoEntryToPlaylist(playlist_uri, video_id)
     except gdata.service.RequestError as inst:
         response = inst[0]
         status = response['status']
@@ -152,7 +152,8 @@ youtube_videos_links = get_all_youtube_url(url_origin)
 if not youtube_videos_links:
     sys.exit('No video links founded. Playlist not updated')
 
-
+# unique video ids
+video_ids = list(set([get_video_id_from_url(url) for url in youtube_videos_links]))
 
 # read user playlists
 playlist = getplaylist(yt_service, playlist_name)
@@ -161,9 +162,9 @@ if not playlist:
 else:
     clear_playlist(yt_service, playlist, playlist_description)
 
-for link in youtube_videos_links:
+for video_id in video_ids:
     time.sleep(3)  # flood control
-    print 'adding ' + link
-    add_video_playlist(yt_service, playlist, link)
+    print 'adding ' + video_id
+    add_video_playlist(yt_service, playlist, video_id)
 
 
