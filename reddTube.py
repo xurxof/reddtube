@@ -81,7 +81,8 @@ for cfg_playlist in cfg_playlists:
     # unique video ids
     video_ids = get_all_youtube_url(url_origin)
     if not video_ids:
-        sys.exit('No video links founded. Playlist not updated')
+        print 'No video links founded. Playlist not updated'
+        continue
 
     # read user play lists
     playlist = youtube.get_playlist(yt_service, playlist_name)
