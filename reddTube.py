@@ -33,6 +33,7 @@ def get_all_youtube_url(url_origin):
     import urllib2
     max_attempts = 5
     attempts = 0
+    html_page=None
 
     while attempts < max_attempts:
         try:
