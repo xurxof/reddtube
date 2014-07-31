@@ -26,25 +26,8 @@ def get_video_id_from_url(video_url):
     return video_id
 
 
-def get_all_youtube_url(url_origin):
-    links = []
-    # get youtube links from origin url
+def extract_youtube_urls_from_html(html_page, links, url_origin):
     from BeautifulSoup import BeautifulSoup
-    import urllib2
-    max_attempts = 5
-    attempts = 0
-    html_page=None
-
-    while attempts < max_attempts:
-        try:
-            html_page = urllib2.urlopen(url_origin)
-            break
-        except urllib2.HTTPError as inst:
-            print "HTTPError. Attempts: {0} Error: {1}".format(attempts, inst)
-            attempts += 1
-            time.sleep(4)
-    if not html_page:
-        return []
 
     print "Analyzing {0}".format(url_origin)
     soup = BeautifulSoup(html_page)
@@ -58,7 +41,30 @@ def get_all_youtube_url(url_origin):
             # TODO: best check
             links.append(link)
 
+
+def get_all_youtube_url(url_origin, wait=4):
+    links = []
+    # get youtube links from origin url
+    import urllib2
+    max_attempts = 5
+    attempts = 0
+    html_page=None
+
+    while attempts < max_attempts:
+        try:
+            html_page = urllib2.urlopen(url_origin)
+            break
+        except urllib2.HTTPError as inst:
+            print "HTTPError. Attempts: {0} Error: {1}".format(attempts, inst)
+            attempts += 1
+            time.sleep(wait)
+    if not html_page:
+        return []
+
+    extract_youtube_urls_from_html(html_page, links, url_origin)
+
     return list(set([get_video_id_from_url(url) for url in links]))
+
 
 def read_config():
 
@@ -69,32 +75,35 @@ def read_config():
     return username, password, developer_key, cfg_playlists
 
 
-username, password ,developer_key, cfg_playlists = read_config()
+def main():
+    username, password,developer_key, cfg_playlists = read_config()
 
-yt_service=youtube.login(username, password, developer_key)
-print 'Logged'
+    yt_service=youtube.login(username, password, developer_key)
+    print 'Logged'
 
-for cfg_playlist in cfg_playlists:
-    playlist_name, url_origin = cfg_playlist[0:2]
-    print 'Updating {0} with {1}'.format(playlist_name, url_origin)
+    for cfg_playlist in cfg_playlists:
+        playlist_name, url_origin = cfg_playlist[0:2]
+        print 'Updating {0} with {1}'.format(playlist_name, url_origin)
 
-    # unique video ids
-    video_ids = get_all_youtube_url(url_origin)
-    if not video_ids:
-        print 'No video links founded. Playlist not updated'
-        continue
+        # unique video ids
+        video_ids = get_all_youtube_url(url_origin)
+        if not video_ids:
+            print 'No video links founded. Playlist not updated'
+            continue
 
-    # read user play lists
-    playlist = youtube.get_playlist(yt_service, playlist_name)
-    playlist_description = get_playlist_description(playlist_name, url_origin)
+        # read user play lists
+        playlist = youtube.get_playlist(yt_service, playlist_name)
+        playlist_description = get_playlist_description(playlist_name, url_origin)
 
-    if not playlist:
-        playlist = youtube.create_playlist(yt_service, playlist_name, playlist_description)
-    else:
-        youtube.clear_playlist(yt_service, playlist, playlist_description)
+        if not playlist:
+            playlist = youtube.create_playlist(yt_service, playlist_name, playlist_description)
+        else:
+            youtube.clear_playlist(yt_service, playlist, playlist_description)
 
-    for video_id in video_ids:
-        print 'adding ' + video_id
-        youtube.add_video_playlist(yt_service, playlist, video_id, max_attempts=5)
+        for video_id in video_ids:
+            print 'adding ' + video_id
+            youtube.add_video_playlist(yt_service, playlist, video_id, max_attempts=5)
 
 
+if __name__ == "__main__":
+    main()
