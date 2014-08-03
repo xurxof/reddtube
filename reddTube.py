@@ -1,11 +1,7 @@
 from datetime import datetime
-import time
+import urllib2
+from utils import attempts
 import youtube
-
-
-
-
-
 
 
 def get_playlist_description(original_title, original_url):
@@ -31,7 +27,8 @@ def get_video_id_from_url(video_url):
 
 def extract_youtube_urls_from_html(html_page, url_origin):
     import BeautifulSoup
-    links=[]
+
+    links = []
     print "Analyzing {0}".format(url_origin)
     soup = BeautifulSoup.BeautifulSoup(html_page)
     for soup_link in soup.findAll('a'):
@@ -46,44 +43,27 @@ def extract_youtube_urls_from_html(html_page, url_origin):
     return links
 
 
-
-def get_all_youtube_url(url_origin, wait=4):
-
+@attempts(5, [])
+def get_all_youtube_url(url_origin):
     # get youtube links from origin url
-    import urllib2
-    max_attempts = 5
-    attempts = 0
-    html_page=None
-
-    while attempts < max_attempts:
-        try:
-            html_page = urllib2.urlopen(url_origin)
-            break
-        except urllib2.HTTPError as inst:
-            print "HTTPError. Attempts: {0} Error: {1}".format(attempts, inst)
-            attempts += 1
-            time.sleep(wait)
-    if not html_page:
-        return []
-
-    links=extract_youtube_urls_from_html(html_page,  url_origin)
-    links_ids= list(set([get_video_id_from_url(url) for url in links]))
+    html_page = urllib2.urlopen(url_origin)
+    links = extract_youtube_urls_from_html(html_page, url_origin)
+    links_ids = list(set([get_video_id_from_url(url) for url in links]))
     return [l for l in links_ids if l]
 
 
 def read_config():
-
     with open('password.hide') as f:
         username, password = f.readline().strip().split(':')
         developer_key = f.readline().strip()
-    cfg_playlists = [map(str.strip,line.split('|')) for line in open('playlists.cfg')]
-    return username, password, developer_key, cfg_playlists
+    cfg_playlists = [map(str.strip, line.split('|')) for line in open('playlists.cfg')]
+    return username, password, developer_key, cfg_playlists, seconds_between_lists
 
 
 def main():
-    username, password,developer_key, cfg_playlists = read_config()
+    username, password, developer_key, cfg_playlists = read_config()
 
-    yt_service=youtube.login(username, password, developer_key)
+    yt_service = youtube.login(username, password, developer_key)
     print 'Logged'
 
     for cfg_playlist in cfg_playlists:

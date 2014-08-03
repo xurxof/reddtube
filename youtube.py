@@ -1,5 +1,6 @@
 import gdata.youtube.service
 import time
+from utils import attempts
 
 
 def get_first(iterable, default=None):
