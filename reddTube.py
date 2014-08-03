@@ -1,8 +1,11 @@
 from datetime import datetime
-import sys
 import time
-
 import youtube
+
+
+
+
+
 
 
 def get_playlist_description(original_title, original_url):
@@ -26,11 +29,11 @@ def get_video_id_from_url(video_url):
     return video_id
 
 
-def extract_youtube_urls_from_html(html_page, links, url_origin):
-    from BeautifulSoup import BeautifulSoup
-
+def extract_youtube_urls_from_html(html_page, url_origin):
+    import BeautifulSoup
+    links=[]
     print "Analyzing {0}".format(url_origin)
-    soup = BeautifulSoup(html_page)
+    soup = BeautifulSoup.BeautifulSoup(html_page)
     for soup_link in soup.findAll('a'):
         link = soup_link.get('href')
         if link is None:
@@ -40,10 +43,12 @@ def extract_youtube_urls_from_html(html_page, links, url_origin):
         if 'www.youtube.com' in link or 'youtu.be' in link:
             # TODO: best check
             links.append(link)
+    return links
+
 
 
 def get_all_youtube_url(url_origin, wait=4):
-    links = []
+
     # get youtube links from origin url
     import urllib2
     max_attempts = 5
@@ -61,9 +66,9 @@ def get_all_youtube_url(url_origin, wait=4):
     if not html_page:
         return []
 
-    extract_youtube_urls_from_html(html_page, links, url_origin)
-
-    return list(set([get_video_id_from_url(url) for url in links]))
+    links=extract_youtube_urls_from_html(html_page,  url_origin)
+    links_ids= list(set([get_video_id_from_url(url) for url in links]))
+    return [l for l in links_ids if l]
 
 
 def read_config():
@@ -89,20 +94,19 @@ def main():
         video_ids = get_all_youtube_url(url_origin)
         if not video_ids:
             print 'No video links founded. Playlist not updated'
-            continue
-
-        # read user play lists
-        playlist = youtube.get_playlist(yt_service, playlist_name)
-        playlist_description = get_playlist_description(playlist_name, url_origin)
-
-        if not playlist:
-            playlist = youtube.create_playlist(yt_service, playlist_name, playlist_description)
         else:
-            youtube.clear_playlist(yt_service, playlist, playlist_description)
+            # read user play lists
+            playlist = youtube.get_playlist(yt_service, playlist_name)
+            playlist_description = get_playlist_description(playlist_name, url_origin)
 
-        for video_id in video_ids:
-            print 'adding ' + video_id
-            youtube.add_video_playlist(yt_service, playlist, video_id, max_attempts=5)
+            if not playlist:
+                playlist = youtube.create_playlist(yt_service, playlist_name, playlist_description)
+            else:
+                youtube.clear_playlist(yt_service, playlist, playlist_description)
+
+            for video_id in video_ids:
+                print 'adding video ' + video_id
+                youtube.add_video_playlist(yt_service, playlist, video_id, max_attempts=5)
 
 
 if __name__ == "__main__":
