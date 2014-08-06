@@ -1,5 +1,7 @@
 from datetime import datetime
+from time import sleep
 import urllib2
+import sys
 from utils import attempts
 import youtube
 
@@ -57,16 +59,19 @@ def read_config():
         username, password = f.readline().strip().split(':')
         developer_key = f.readline().strip()
     cfg_playlists = [map(str.strip, line.split('|')) for line in open('playlists.cfg')]
+    seconds_between_lists = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
+
     return username, password, developer_key, cfg_playlists, seconds_between_lists
 
 
 def main():
-    username, password, developer_key, cfg_playlists = read_config()
+    username, password, developer_key, cfg_playlists, seconds_between_lists = read_config()
 
     yt_service = youtube.login(username, password, developer_key)
     print 'Logged'
 
     for cfg_playlist in cfg_playlists:
+        sleep(seconds_between_lists)
         playlist_name, url_origin = cfg_playlist[0:2]
         print 'Updating {0} with {1}'.format(playlist_name, url_origin)
 
